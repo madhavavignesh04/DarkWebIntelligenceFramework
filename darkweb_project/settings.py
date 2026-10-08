@@ -25,7 +25,11 @@ SECRET_KEY = 'django-insecure-d%p4x%nds#m*_+2xc!a^k51kd0h3fu=c42t9lavv)zc%uem9g$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'darkweb-intelligence-framework.onrender.com',
+    'localhost',
+    '127.0.0.1',
+]
 
 
 # Application definition
