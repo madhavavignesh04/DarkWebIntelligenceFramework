@@ -1,48 +1,65 @@
-from google import genai
-import os
-import time
-
-client = genai.Client(
-    api_key=os.environ["GEMINI_API_KEY"]
-)
+import re
 
 
 def analyze_with_gemini(text):
+    """
+    Rule-based webpage analysis.
+    No Gemini API required.
+    """
 
-    prompt = f"""
-You are an AI analyst for an academic cybersecurity research system.
+    if not text or not text.strip():
+        return "Summary: No webpage text available."
 
-Analyze only the supplied webpage text.
+    text = text[:8000]
+    lower_text = text.lower()
 
-Give:
-1. Short summary
-2. Main category
-3. Suspicious indicators
-4. Brief risk explanation
+    # 1. Basic summary
+    summary = re.sub(r"\s+", " ", text).strip()[:300]
 
-Do not provide instructions for illegal activity,
-credential theft, malware use, or evasion.
+    # 2. Category detection
+    if any(word in lower_text for word in ["bitcoin", "crypto", "wallet"]):
+        category = "Cryptocurrency"
+    elif any(word in lower_text for word in ["login", "password", "credential"]):
+        category = "Authentication"
+    elif any(word in lower_text for word in ["malware", "ransomware", "exploit"]):
+        category = "Cybersecurity"
+    else:
+        category = "General"
 
-Webpage text:
-{text[:8000]}
-"""
+    # 3. Suspicious indicators
+    indicators = []
 
-    for attempt in range(3):
-        try:
-            response = client.models.generate_content(
-                model="gemini-3.8-flash",
-                contents=prompt,
-            )
+    keywords = [
+        "phishing",
+        "stolen credentials",
+        "malware",
+        "ransomware",
+        "exploit",
+        "stolen data",
+    ]
 
-            return response.text
+    for keyword in keywords:
+        if keyword in lower_text:
+            indicators.append(keyword)
 
-        except Exception as error:
+    if indicators:
+        risk = "High" if len(indicators) >= 3 else "Medium"
+        indicator_text = ", ".join(indicators)
+    else:
+        risk = "Low"
+        indicator_text = "No configured keywords detected"
 
-            error_text = str(error)
+    # 4. Risk explanation
+    explanation = (
+        f"Rule-based classification: {len(indicators)} configured "
+        f"suspicious keyword(s) detected."
+    )
 
-            if "503" in error_text or "UNAVAILABLE" in error_text:
-                if attempt < 2:
-                    time.sleep(5 * (2 ** attempt))
-                    continue
-
-            return "Gemini AI temporarily unavailable."
+    return (
+        f"Summary: {summary}\n"
+        f"Category: {category}\n"
+        f"Suspicious Indicators: {indicator_text}\n"
+        f"Risk Level: {risk}\n"
+        f"Risk Explanation: {explanation}"
+    )
+         
