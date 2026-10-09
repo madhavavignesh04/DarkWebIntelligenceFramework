@@ -4,16 +4,30 @@ from .services.crawler import save_crawled_page, recursive_crawl
 
 
 def dashboard(request):
+    error_message = None
+
     if request.method == "POST":
-        url = request.POST.get("url")
-        crawl_type = request.POST.get("crawl_type")
+        url = request.POST.get("url", "").strip()
+        crawl_type = request.POST.get("crawl_type", "single")
 
         if url:
             try:
                 if crawl_type == "recursive":
-                    recursive_crawl(url, max_depth=1)
+                    max_pages = int(request.POST.get("max_pages", 10))
+                    max_depth = int(request.POST.get("max_depth", 1))
+
+                    # Keep crawling within safe limits
+                    max_pages = max(1, min(max_pages, 50))
+                    max_depth = max(0, min(max_depth, 3))
+
+                    recursive_crawl(
+                        url,
+                        max_depth=max_depth,
+                        max_pages=max_pages,
+                    )
                 else:
                     save_crawled_page(url)
+
             except Exception as error:
                 print("Crawl error:", error)
 
@@ -43,3 +57,4 @@ def analytics(request):
     }
 
     return render(request, "crawler_app/analytics.html", context)
+    
