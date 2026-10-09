@@ -1,13 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Dark Web Intelligence Dashboard</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            margin: 40px;
+            margin: 30px;
             background: #f4f6f8;
+            color: #111827;
         }
 
         h1 {
@@ -16,62 +24,100 @@
 
         .crawl-box {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
-        .crawl-box input {
-            width: 60%;
+        .crawl-box input,
+        .crawl-box select {
             padding: 12px;
             border: 1px solid #ccc;
             border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .url-input {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 150px;
         }
 
         button {
             padding: 12px 18px;
-            margin-left: 8px;
             background: #111827;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            opacity: 0.85;
         }
 
         .recursive {
             background: #2563eb;
         }
 
+        .help {
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
         .cards {
-            display: flex;
-            gap: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 18px;
             margin-bottom: 30px;
         }
 
         .card {
             background: white;
-            padding: 20px;
+            padding: 22px;
             border-radius: 10px;
-            min-width: 150px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
         .number {
             font-size: 28px;
             font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background: white;
+            border-radius: 10px;
         }
 
         table {
             width: 100%;
-            background: white;
             border-collapse: collapse;
+            min-width: 1100px;
         }
 
         th, td {
             padding: 12px;
             border-bottom: 1px solid #ddd;
             text-align: left;
+            vertical-align: top;
         }
 
         th {
@@ -79,34 +125,104 @@
             color: white;
         }
 
+        td {
+            overflow-wrap: anywhere;
+            max-width: 250px;
+        }
+
         a {
             color: #2563eb;
             text-decoration: none;
+        }
+
+        .risk-high {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .risk-medium {
+            color: #d97706;
+            font-weight: bold;
+        }
+
+        .risk-low {
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                margin: 12px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<h1>Dark Web Intelligence Dashboard</h1>
+<h1>Dark Web Intelligence Framework</h1>
+
+<p class="help">
+    Automated Web Crawling | NLP Analysis | Rule-Based Risk Profiling
+</p>
 
 <div class="crawl-box">
 
-    <h2>🔍 Crawl New URL</h2>
+    <h2>Start a Crawl</h2>
 
     <form method="POST">
-
         {% csrf_token %}
 
+        <label for="url"><strong>Starting URL</strong></label>
+
         <input
+            class="url-input"
             type="url"
+            id="url"
             name="url"
-            placeholder="Enter URL e.g. https://example.com"
+            placeholder="https://example.com"
             required
         >
 
+        <div class="controls">
+
+            <div class="control-group">
+                <label for="crawl_type">Crawling Mode</label>
+
+                <select id="crawl_type" name="crawl_type">
+                    <option value="single">Single Page</option>
+                    <option value="recursive">Automated Crawling</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="max_pages">Maximum Pages</label>
+
+                <select id="max_pages" name="max_pages">
+                    <option value="10">10 Pages</option>
+                    <option value="25">25 Pages</option>
+                    <option value="50">50 Pages</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="max_depth">Crawl Depth</label>
+
+                <select id="max_depth" name="max_depth">
+                    <option value="1">Level 1</option>
+                    <option value="2">Level 2</option>
+                    <option value="3">Level 3</option>
+                </select>
+            </div>
+
+        </div>
+
         <button type="submit">
-            Crawl URL
+            Crawl Single Page
         </button>
 
         <button
@@ -115,103 +231,117 @@
             value="recursive"
             class="recursive"
         >
-            Recursive Crawl
+            Start Automated Crawl
         </button>
+
+        <p class="help">
+            Automated mode discovers links and processes pages within
+            the selected limits. Only crawl websites you are authorized
+            to access.
+        </p>
 
     </form>
 
 </div>
 
-
 <div class="cards">
 
     <div class="card">
         <div>Total Pages</div>
-        <div class="number">{{ total_pages }}</div>
+        <div class="number">{{ total_pages|default:0 }}</div>
     </div>
 
     <div class="card">
         <div>High Risk</div>
-        <div class="number">{{ high_risk }}</div>
+        <div class="number">{{ high_risk|default:0 }}</div>
     </div>
 
     <div class="card">
         <div>Medium Risk</div>
-        <div class="number">{{ medium_risk }}</div>
+        <div class="number">{{ medium_risk|default:0 }}</div>
     </div>
 
     <div class="card">
         <div>Low Risk</div>
-        <div class="number">{{ low_risk }}</div>
+        <div class="number">{{ low_risk|default:0 }}</div>
     </div>
 
 </div>
 
-
 <h2>Crawled Pages</h2>
 
-<table>
+<div class="table-container">
 
-    <tr>
-        <th>Title</th>
-        <th>URL</th>
-        <th>Category</th>
-        <th>Sentiment</th>
-        <th>Risk Score</th>
-        <th>Risk Level</th>
-        <th>AI Summary</th>
-        <th>AI Category</th>
-        <th>AI Risk Reason</th>
-        <th>Screenshot</th>
-        <th>Status</th>
-    </tr>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>URL</th>
+                <th>Category</th>
+                <th>Sentiment</th>
+                <th>Risk Score</th>
+                <th>Risk Level</th>
+                <th>Summary</th>
+                <th>Analysis Category</th>
+                <th>Risk Explanation</th>
+                <th>Screenshot</th>
+                <th>Status</th>
+            </tr>
+        </thead>
 
-    {% for page in pages %}
+        <tbody>
+            {% for page in pages %}
+            <tr>
+                <td>{{ page.title }}</td>
 
-    <tr>
+                <td>
+                    <a href="{{ page.url }}" target="_blank"
+                       rel="noopener noreferrer">
+                        {{ page.url }}
+                    </a>
+                </td>
 
-        <td>{{ page.title }}</td>
+                <td>{{ page.category }}</td>
+                <td>{{ page.sentiment }}</td>
+                <td>{{ page.risk_score }}</td>
 
-        <td>{{ page.url }}</td>
+                <td>
+                    {% if page.risk_level == "High" %}
+                        <span class="risk-high">{{ page.risk_level }}</span>
+                    {% elif page.risk_level == "Medium" %}
+                        <span class="risk-medium">{{ page.risk_level }}</span>
+                    {% else %}
+                        <span class="risk-low">{{ page.risk_level }}</span>
+                    {% endif %}
+                </td>
 
-        <td>{{ page.category }}</td>
+                <td>{{ page.ai_summary|default:"Not available" }}</td>
+                <td>{{ page.ai_category|default:"Not available" }}</td>
+                <td>{{ page.ai_risk_reason|default:"Not available" }}</td>
 
-        <td>{{ page.sentiment }}</td>
+                <td>
+                    {% if page.screenshot_path %}
+                        <a href="/media/{{ page.screenshot_path }}"
+                           target="_blank">
+                            View Screenshot
+                        </a>
+                    {% else %}
+                        No Screenshot
+                    {% endif %}
+                </td>
 
-        <td>{{ page.risk_score }}</td>
-        <td>{{ page.risk_level }}</td>
-        <td>{{ page.ai_summary }}</td>
-        <td>{{ page.ai_category }}</td>
-        <td>{{ page.ai_risk_reason }}</td>
+                <td>{{ page.status }}</td>
+            </tr>
 
-        <td>
-            {% if page.screenshot_path %}
-                <a
-                    href="/media/{{ page.screenshot_path }}"
-                    target="_blank"
-                >
-                    View Screenshot
-                </a>
-            {% else %}
-                No Screenshot
-            {% endif %}
-        </td>
+            {% empty %}
+            <tr>
+                <td colspan="11">No crawled pages available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-        <td>{{ page.status }}</td>
-
-    </tr>
-
-    {% empty %}
-
-    <tr>
-        <td colspan="8">
-            No crawled pages available.
-        </td>
-    </tr>
-
-    {% endfor %}
-
-</table>
+</div>
 
 </body>
 </html>
