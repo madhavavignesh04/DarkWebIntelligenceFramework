@@ -35,32 +35,21 @@ def dashboard(request):
 
     pages = CrawledPage.objects.order_by("-id")
 
-    context = {
-        "pages": pages,
-        "total_pages": pages.count(),
-        "high_risk": pages.filter(risk_level="High").count(),
-        "medium_risk": pages.filter(risk_level="Medium").count(),
-        "low_risk": pages.filter(risk_level="Low").count(),
-    }
-
-    return render(request, "crawler_app/dashboard.html", context)
-
-
-def analytics(request):
-    pages = CrawledPage.objects.all()
-
+    # Risk distribution
     risk_data = list(
         pages.values("risk_level")
         .annotate(count=Count("id"))
         .order_by("risk_level")
     )
 
+    # Category analysis
     category_data = list(
         pages.values("category")
         .annotate(count=Count("id"))
-        .order_by("-count")
+        .order_by("-count")[:10]
     )
 
+    # Daily crawling activity
     daily_data = list(
         pages.annotate(day=TruncDate("crawled_at"))
         .values("day")
@@ -69,6 +58,7 @@ def analytics(request):
     )
 
     context = {
+        "pages": pages,
         "total_pages": pages.count(),
         "high_risk": pages.filter(risk_level="High").count(),
         "medium_risk": pages.filter(risk_level="Medium").count(),
@@ -94,19 +84,21 @@ def analytics(request):
 
         "daily_labels": [
             item["day"].strftime("%d %b")
-            for item in daily_data
-            if item["day"]
+            for item in daily_data if item["day"]
         ],
         "daily_values": [
             item["count"]
-            for item in daily_data
-            if item["day"]
+            for item in daily_data if item["day"]
         ],
     }
 
     return render(
         request,
-        "crawler_app/analytics.html",
+        "crawler_app/dashboard.html",
         context,
     )
+
+
+def analytics(request):
+    return redirect("dashboard")
     
